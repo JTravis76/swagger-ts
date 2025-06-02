@@ -25,7 +25,7 @@ const contentTypes = ["application/json", "application/json; ver=1.0", "applicat
 //==== Utilities ======================================================
 
 function generatedMessage() {
-  return "/* eslint-disable */\n/* tslint:disable */\n// @ts-nocheck This file is auto-generated\n/*\n* -----------------------------------------------------\n* ## THIS FILE WAS GENERATED VIA SWAGGER-TS          ##\n* ## SOURCE: https://github.com/JTravis76/swagger-ts ##\n* -----------------------------------------------------\n*/\n";
+  return "/* eslint-disable */\n/* tslint:disable */\n// @ts-nocheck This file is auto-generated\n/*\n* -----------------------------------------------------\n* ## THIS FILE WAS GENERATED VIA SWAGGER-TS          ##\n* ## https://github.com/JTravis76/swagger-ts         ##\n* -----------------------------------------------------\n*/\n";
 }
 
 function getReferenceType(value: string) {
@@ -537,31 +537,33 @@ export const generate = async (opt?: { input: string | string[] }): Promise<void
   }
 
   if (Array.isArray(params.input)) {
-    params.input.forEach((f) => {
-      if (f.includes(".json")) {
-        swagger = JSON.parse(fs.readFileSync(f, "utf8"));
-      }
-      else if (f.includes("http")) {
 
+    for (let idx in params.input) {
+      let value = params.input[idx];
+
+      if (value.startsWith("http")) {
         if (!params.strictSSL) process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
-
-        fetch(f, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            ...params.header
-          }
-        }).then(async (resp) => {
-          swagger = await resp.json() as ISwagger;
-        }).catch((err) => console.error(err));
+        await fetch(value)
+          .then((res) => res.ok ? res.json() : res.text())
+          .then((d) => {
+            swagger = d as ISwagger;
+          })
+          .catch((err) => console.error(err));
+      }
+      else if (value.includes(".json")) {
+        swagger = JSON.parse(fs.readFileSync(value, "utf8"));
       }
 
+      if (!swagger.openapi) {
+        console.error("Unknown error. Check the swagger.json.");
+        return
+      }
       collectResponseTypes();
       generateSchema();
       generateEndpoints();
-    });
+    }
 
     print(createSchema(), params.schemaOut);
     print(createController(), params.controllerOut);
   }
-};
+}

@@ -1,6 +1,6 @@
 {
   "name": "@jtravis/swagger-ts",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A simple generator for swagger types and controllers",
   "main": "dist/index.js",
   "scripts": {
@@ -41,9 +41,10 @@
   "swagger": {
     "input": [
       "./sample/swagger-v1.json",
-      "./sample/swagger-v2.json"
+      "./sample/swagger-v2.json",
+      "https://localhost:44358/swagger/v2/swagger.json"
     ],
-    "strictSSL": true,
+    "strictSSL": false,
     "schemaOut": "./sample/schema.d.ts",
     "controllerOut": "./sample/controller.ts"
   }

@@ -1,0 +1,134 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sample swagger",
+    "version": "v2"
+  },
+  "paths": {
+    "/api/v{version}/Version/GetVersion": {
+      "post": {
+        "tags": [
+          "Version"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Version",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json; ver=2.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            },
+            "text/json; ver=2.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            },
+            "application/*+json; ver=2.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain; ver=2.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              },
+              "application/json; ver=2.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              },
+              "text/json; ver=2.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VersionRequest": {
+        "type": "object",
+        "properties": {
+          "IncludeAllPages": {
+            "type": "boolean"
+          },
+          "PageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "SortField": {
+            "type": "string",
+            "nullable": true
+          },
+          "SortOrder": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VersionResponse": {
+        "type": "object",
+        "properties": {
+          "Version": {
+            "type": "string",
+            "nullable": true
+          },
+          "EnvironmentRegion": {
+            "type": "string",
+            "nullable": true
+          },
+          "Environment": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

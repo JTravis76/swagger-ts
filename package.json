@@ -1,0 +1,50 @@
+{
+  "name": "@jtravis/swagger-ts",
+  "version": "1.0.0",
+  "description": "A simple generator for swagger types and controllers",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rimraf ./dist && tsc",
+    "start": "npm run build && node dist/index.js"
+  },
+  "keywords": [
+    "typescript",
+    "swagger",
+    "generator"
+  ],
+  "author": "Jeremy Travis",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JTravis76/swagger-ts.git"
+  },
+  "bin": {
+    "swagger-ts": "bin/swagger-ts"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  },
+  "files": [
+    "README.md",
+    "/dist",
+    "/bin"
+  ],
+  "swagger": {
+    "input": [
+      "./sample/swagger-v1.json",
+      "./sample/swagger-v2.json"
+    ],
+    "strictSSL": true,
+    "schemaOut": "./sample/schema.d.ts",
+    "controllerOut": "./sample/controller.ts"
+  }
+}

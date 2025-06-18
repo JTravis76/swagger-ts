@@ -285,6 +285,55 @@
           }
         }
       }
+    },
+    "/api/SuperAdmin/SetCamerasForLocation": {
+      "post": {
+        "tags": [
+          "SuperAdmin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationCameraRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationCameraRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationCameraRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationCameraResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationCameraResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationCameraResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
     }
   },
   "components": {
@@ -361,6 +410,61 @@
           "ConnectedRMQConsumers": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocationCameraRequest": {
+        "type": "object",
+        "properties": {
+          "IncludeAllPages": {
+            "type": "boolean"
+          },
+          "PageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "SortField": {
+            "type": "string",
+            "nullable": true
+          },
+          "SortOrder": {
+            "type": "string",
+            "nullable": true
+          },
+          "LocationID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "CameraIDs": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LocationCameraResponse": {
+        "type": "object",
+        "properties": {
+          "IsSuccess": {
+            "type": "boolean"
+          },
+          "Message": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

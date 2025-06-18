@@ -1,6 +1,6 @@
 {
   "name": "@jtravis/swagger-ts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple generator for swagger types and controllers",
   "main": "dist/index.js",
   "scripts": {
@@ -46,6 +46,7 @@
     ],
     "strictSSL": false,
     "schemaOut": "./sample/schema.d.ts",
-    "controllerOut": "./sample/controller.ts"
+    "controllerOut": "./sample/controller.ts",
+    "configType": "axios"
   }
 }

@@ -5,6 +5,7 @@
 - CLI
 - Request Payload vs. Response Return Types
 - Controller Format Modes
+- Releases
 
 ## OBJECTIVE
 
@@ -38,11 +39,14 @@ The 'input' parameter can either be a string pointing to a single swagger file o
   ],
   "strictSSL": true,
   "schemaOut": "./types/schema.d.ts",
-  "controllerOut": "./src/api/controller.ts"
+  "controllerOut": "./src/api/controller.ts",
+  "configType": "axios"
 }
 ```
 
-- inline arguments (see CLI section of this article)
+- **StrictSSL** to false allow fetching swagger.json from a self-signed cert.  
+- **ConfigType** sets the configuration for the client. Currently, there is a single option 'axios'. This option will include the import header and mark the config parameter as 'AxiosRequestConfig'.
+- Inline arguments (see CLI section of this article)
 
 ## CLI
 
@@ -174,3 +178,10 @@ controller.Person.post({ id: 1, firstname: "Johnny", lastname: "Blaze" }).then(
 
 controller.Location.get(1).then((res) => console.log(res));
 ```
+
+## RELEASES
+
+- 1.0.3 new 'configType' to set the configuration; blank || axios
+- 1.0.2 fix fetching swagger.json via URL
+- 1.0.1 update generated message banner
+- 1.0.0 initial release

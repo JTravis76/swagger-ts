@@ -7,7 +7,8 @@ const params = {
   strictSSL: true,
   schemaOut: "",
   controllerOut: "",
-  mode: "version" // future mode in WIP, version | verb??
+  mode: "version", // future mode in WIP, version | verb??
+  configType: "" // 'axios'
 };
 
 //============================================================
@@ -25,7 +26,7 @@ const contentTypes = ["application/json", "application/json; ver=1.0", "applicat
 //==== Utilities ======================================================
 
 function generatedMessage() {
-  return "/* eslint-disable */\n/* tslint:disable */\n// @ts-nocheck This file is auto-generated\n/*\n* -----------------------------------------------------\n* ## THIS FILE WAS GENERATED VIA SWAGGER-TS          ##\n* ## https://github.com/JTravis76/swagger-ts         ##\n* -----------------------------------------------------\n*/\n";
+  return "/* eslint-disable */\n/* tslint:disable */\n// @ts-nocheck This file is auto-generated\n/*\n * -----------------------------------------------------\n * ## THIS FILE WAS GENERATED VIA SWAGGER-TS          ##\n * ## https://github.com/JTravis76/swagger-ts         ##\n * -----------------------------------------------------\n */\n";
 }
 
 function getReferenceType(value: string) {
@@ -404,10 +405,12 @@ function buildControllers() {
             }
           }
         }
+        let config = "config?: any";
+        if (params.configType === "axios") config = "config?: AxiosRequestConfig";
 
         if (queryVerbs.includes(e.verb)) {
           if (p.query.length === 0) {
-            sb += `      ${e.action}: () => httpClient.${e.verb}<${p.returnType}>(\`${url}\`),\n`;
+            sb += `      ${e.action}: (${config}) => httpClient.${e.verb}<${p.returnType}>(\`${url}\`, config),\n`;
           }
           else {
             // (id: string, sort: string) & { id, sort }
@@ -418,9 +421,9 @@ function buildControllers() {
         }
         if (bodyVerbs.includes(e.verb)) {
           if (p.payload.length > 0)
-            sb += `      ${e.action}: (${p.payload}) => httpClient.${e.verb}<${p.returnType}>(\`${url}\`, payload),\n`;
+            sb += `      ${e.action}: (${p.payload}, ${config}) => httpClient.${e.verb}<${p.returnType}>(\`${url}\`, payload, config),\n`;
           else
-            sb += `      ${e.action}: () => httpClient.${e.verb}<${p.returnType}>(\`${url}\`),\n`;
+            sb += `      ${e.action}: (${config}) => httpClient.${e.verb}<${p.returnType}>(\`${url}\`, config),\n`;
         }
 
         if (sb.length > 0 && !controllers[e.controller][p.tag].some(x => x.includes(e.action + ":"))) {
@@ -485,6 +488,8 @@ function createController(): string {
   //endpoints.forEach((e) => console.log(e.paths))
 
   let sb = generatedMessage()
+  if (params.configType === "axios") sb += "import type { AxiosRequestConfig } from 'axios';\n"
+
   sb += "import httpClient from './httpClient';\n";
   sb += "\n// prettier-ignore\nexport default {\n";
   Object.keys(controllers).forEach((c) => {

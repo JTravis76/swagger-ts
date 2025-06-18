@@ -13,6 +13,7 @@ const params = program
   .option('-s, --schemaOuta <value>', 'path (with filename) for schemas file. EX: .types/schema.d.ts')
   .option('-c, --controllerOut <value>', 'path (with filename) for controller file. EX: ./src/api/controller.ts')
   .option('-m, --mode <value>', 'mode for the controller format.')
+  .option('--configType <value>', 'configuration type for the client; axios')
   .option('--strictSSL <value>', 'enforce SSL certificate chain when calling HTTPS', true)
   .parse(process.argv)
   .opts();

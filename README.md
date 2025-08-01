@@ -181,6 +181,7 @@ controller.Location.get(1).then((res) => console.log(res));
 
 ## RELEASES
 
+- 1.0.4 scanning response types beyond one level
 - 1.0.3 new 'configType' to set the configuration; blank || axios
 - 1.0.2 fix fetching swagger.json via URL
 - 1.0.1 update generated message banner

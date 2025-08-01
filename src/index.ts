@@ -103,7 +103,6 @@ function deepMerge(target: any, source: any) {
 
 /** Build a list of objects that are of type Response */
 function collectResponseTypes() {
-  const list = new Array<string>();
   const paths = Object.keys(swagger.paths);
   for (const p in paths) {
     const path = paths[p];
@@ -116,31 +115,41 @@ function collectResponseTypes() {
           let content = contentObj[contentTypes[i]];
           if (content) {
             const type = getType(content).replace("[]", "");
-            list.push(type);
+            responseTypes.push(type);
             // Now we search & check the nested objects
-            if (swagger.components.schemas[type]?.properties) {
-              const properties = swagger.components.schemas[type].properties;
-              Object.keys(properties)
-                .forEach((prop: string) => {
-                  if (properties[prop]["items"]) {
-                    if (properties[prop]["items"]["$ref"]) {
-                      // NOTE: This is a single level depth ONLY !!
-                      list.push(getReferenceType(properties[prop]["items"]["$ref"]));
-                    }
-                    // else {
-                    //   // a scalar type
-                    //   console.log(properties[prop]["items"]["type"])
-                    // }
-                  }
-                });
-            }
+            getNestedType(type);
             break;
           }
         }
       }
     }
   }
-  responseTypes = [...new Set(list)];
+  responseTypes = [...new Set(responseTypes)];
+}
+
+/** Fetch the Reference type for the nested object */
+function getNestedType(type: string) {
+  if (swagger.components.schemas[type]?.properties) {
+    const properties = swagger.components.schemas[type].properties;
+    Object.keys(properties)
+      .forEach((prop: string) => {
+        if (properties[prop]["items"]) {
+          if (properties[prop]["items"]["$ref"]) {
+            type = getReferenceType(properties[prop]["items"]["$ref"]);
+            if (!responseTypes.includes(type)) {
+              responseTypes.push(type);
+              if (JSON.stringify(swagger.components.schemas[type]).includes('"items":{"$ref"')) {
+                getNestedType(type);
+              }
+            }
+          }
+          // else {
+          //   // a scalar type
+          //   console.log(properties[prop]["items"]["type"])
+          // }
+        }
+      });
+  }
 }
 
 function buildSchema(name: string) {

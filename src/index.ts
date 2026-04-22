@@ -339,7 +339,8 @@ function generateEndpoints() {
             url: [path],
             query: queryParameters,
             payload: payloadParameter,
-            returnType: returnType
+            returnType: returnType,
+            deprecated: pathVerb["deprecated"] ?? false
           }],
           controller,
           action,
@@ -414,6 +415,9 @@ function buildControllers() {
             }
           }
         }
+
+        if (p.deprecated) sb += "      /** @deprecated */\n";
+
         let config = "config?: any";
         if (params.configType === "axios") config = "config?: AxiosRequestConfig";
 

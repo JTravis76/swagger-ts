@@ -24,6 +24,8 @@ export interface IPath {
   payload: string;
   /** Gets or sets the return object/scaler type */
   returnType: string;
+  /** flags  the path as deprecated */
+  deprecated: boolean;
 }
 
 export interface IEndpoint {

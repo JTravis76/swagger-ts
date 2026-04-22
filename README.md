@@ -44,7 +44,7 @@ The 'input' parameter can either be a string pointing to a single swagger file o
 }
 ```
 
-- **StrictSSL** to false allow fetching swagger.json from a self-signed cert.  
+- **StrictSSL** to false allow fetching swagger.json from a self-signed cert.
 - **ConfigType** sets the configuration for the client. Currently, there is a single option 'axios'. This option will include the import header and mark the config parameter as 'AxiosRequestConfig'.
 - Inline arguments (see CLI section of this article)
 
@@ -173,7 +173,7 @@ export default {
 import controller from "../api/controller";
 
 controller.Person.post({ id: 1, firstname: "Johnny", lastname: "Blaze" }).then(
-  (res) => console.log(res)
+  (res) => console.log(res),
 );
 
 controller.Location.get(1).then((res) => console.log(res));
@@ -181,6 +181,7 @@ controller.Location.get(1).then((res) => console.log(res));
 
 ## RELEASES
 
+- 1.0.5 included 'deprecated' attribute
 - 1.0.4 scanning response types beyond one level
 - 1.0.3 new 'configType' to set the configuration; blank || axios
 - 1.0.2 fix fetching swagger.json via URL

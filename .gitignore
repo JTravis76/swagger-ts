@@ -6,5 +6,5 @@ node_modules
 
 # Build / generate output
 dist
-sample/controller.ts
-sample/schema.d.ts
+#sample/controller.ts
+#sample/schema.d.ts

@@ -11,6 +11,8 @@
 
 This CLI tool is use to generate TypeScript typing's from Swagger OpenAPI JSON. This tool ONLYS builds the schema (TypeScript Types) and the controller. Feel free to use any HTTP client along side.
 
+> See `sample\module.ts`, `sample\schema.d.ts` and `sample\controller.ts` for sample output and usage.
+
 > Just be mindful of the import statement in controller output.
 
 ```ts

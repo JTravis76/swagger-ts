@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node dist/index.js"
+    "start": "npm run build && node dist/index.js",
+    "build:swagger": "node ./dist/cli.js"
   },
   "keywords": [
     "typescript",
@@ -41,8 +42,7 @@
   "swagger": {
     "input": [
       "./sample/swagger-v1.json",
-      "./sample/swagger-v2.json",
-      "https://localhost:44358/swagger/v2/swagger.json"
+      "./sample/swagger-v2.json"
     ],
     "strictSSL": false,
     "schemaOut": "./sample/schema.d.ts",

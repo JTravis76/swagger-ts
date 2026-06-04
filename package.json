@@ -41,8 +41,7 @@
   ],
   "swagger": {
     "input": [
-      "./sample/swagger-v1.json",
-      "./sample/swagger-v2.json"
+      "./sample/verb-swagger-v1.json"
     ],
     "strictSSL": false,
     "schemaOut": "./sample/schema.d.ts",

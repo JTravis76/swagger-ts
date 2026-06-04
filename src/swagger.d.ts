@@ -4,7 +4,16 @@ export interface ISwagger {
     title: string;
     version: string;
   };
-  paths: any;
+  paths: Record<string, Record<string, {
+    tags?: string[],
+    summary?: string | null,
+    description?: string | null,
+    operationId?: string | null,
+    deprecated?: boolean,
+    parameters?: { name: string, in: string, required: boolean, schema: { type: string, format: string } }[],
+    requestBody?: { required: boolean, content: any },
+    responses?: Record<string, { description: string, content: Record<string, any> }>,
+  }>>;
   components: {
     schemas: any;
   };

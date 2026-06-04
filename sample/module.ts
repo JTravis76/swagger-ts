@@ -4,10 +4,15 @@
  */
 import controller from "./controller";
 
-controller.Version.v1.GetVersion({}).then((d) => console.log(d));
+// controller.Version.v1.GetVersion({}).then((d) => console.log(d));
 
-const data = await controller.Version.v2.GetVersion({});
+// const data = await controller.Version.v2.GetVersion({});
 
-controller.Video.v1.SubscribedAlertRuleNotificationByUser({}).then(() => console.log(""));
+// controller.Video.v1.SubscribedAlertRuleNotificationByUser({}).then(() => console.log(""));
 
-controller.SuperAdmin.v1.SetCamerasForLocation({});
+// controller.SuperAdmin.v1.SetCamerasForLocation({});
+
+controller.authenticate.v1.signin({})
+controller.cameras.v1.delete(0);
+controller.cameras.v1.get(10, 1, null, true, null);
+controller.company.v1.get(10, 1);

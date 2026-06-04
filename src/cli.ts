@@ -18,7 +18,7 @@ const params = program
   .parse(process.argv)
   .opts();
 
-const SwaggerTs = require(path.resolve(__dirname, './index.js'));
+const SwaggerTs = require(path.resolve(__dirname, './v2.js'));
 
 if (SwaggerTs) {
   SwaggerTs.generate(params)

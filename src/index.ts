@@ -1,5 +1,6 @@
 import { IEndpoint, ISwagger } from "./swagger.d";
-const fs = require("fs")
+// const https = require('https');
+const fs = require("fs");
 
 const params = {
   input: new Array<string>(),
@@ -560,6 +561,13 @@ export const generate = async (opt?: { input: string | string[] }): Promise<void
       let value = params.input[idx];
 
       if (value.startsWith("http")) {
+        //process.env.NODE_EXTRA_CA_CERTS = "./localhost.cert.pem"
+        // const ca = fs.readFileSync('./localhost.cert.pem');
+        // const httpsAgent = new https.Agent({
+        //   ca: ca,
+        //   rejectUnauthorized: true  // Still verify, just trust our cert
+        // });
+
         if (!params.strictSSL) process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
         await fetch(value)
           .then((res) => res.ok ? res.json() : res.text())

@@ -4,16 +4,30 @@ export interface ISwagger {
     title: string;
     version: string;
   };
-  paths: Record<string, Record<string, {
-    tags?: string[],
-    summary?: string | null,
-    description?: string | null,
-    operationId?: string | null,
-    deprecated?: boolean,
-    parameters?: { name: string, in: string, required: boolean, schema: { type: string, format: string } }[],
-    requestBody?: { required: boolean, content: any },
-    responses?: Record<string, { description: string, content: Record<string, any> }>,
-  }>>;
+  paths: Record<
+    string,
+    Record<
+      string,
+      {
+        tags?: string[];
+        summary?: string | null;
+        description?: string | null;
+        operationId?: string | null;
+        deprecated?: boolean;
+        parameters?: {
+          name: string;
+          in: string;
+          required: boolean;
+          schema: { type: string; format: string; $ref?: string };
+        }[];
+        requestBody?: { required: boolean; content: any };
+        responses?: Record<
+          string,
+          { description: string; content: Record<string, any> }
+        >;
+      }
+    >
+  >;
   components: {
     schemas: any;
   };
@@ -22,13 +36,13 @@ export interface ISwagger {
 export interface IPath {
   /** Gets or sets the version tag for the path */
   tag: string;
-  /** Gets or sets the URLs for the path 
+  /** Gets or sets the URLs for the path
    * @summary Could contain two different URLs:
    * '/api/controller/action', '/api/v{version}/controller/action'
-  */
+   */
   url: string[];
   /** Gets or the sets the list of URL query string parameters */
-  query: { name: string, type: string }[];
+  query: { name: string; type: string }[];
   /** Gets or sets the payload object type */
   payload: string;
   /** Gets or sets the return object/scaler type */
@@ -38,7 +52,7 @@ export interface IPath {
 }
 
 export interface IEndpoint {
-  paths: IPath[],
+  paths: IPath[];
   controller: string;
   action: string;
   verb: string;

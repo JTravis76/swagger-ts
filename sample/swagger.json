@@ -1,0 +1,171 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sample swagger",
+    "version": "v1"
+  },
+  "paths":{
+    "/api/Version/GetVersion": {
+      "post": {
+        "tags": [
+          "Version"
+        ],
+        "parameters": [
+          {
+            "name": "api-version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Version",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json; ver=1.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            },
+            "text/json; ver=1.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            },
+            "application/*+json; ver=1.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain; ver=1.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              },
+              "application/json; ver=1.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              },
+              "text/json; ver=1.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v{version}/Version/GetVersion": {
+      "post": {
+        "tags": [
+          "Version"
+        ],
+        "parameters": [
+          {
+            "name": "api-version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Version",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json; ver=1.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            },
+            "text/json; ver=1.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            },
+            "application/*+json; ver=1.0": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain; ver=1.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              },
+              "application/json; ver=1.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              },
+              "text/json; ver=1.0": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "VersionRequest": {
+        "type": "object",
+        "properties": {
+          "IncludeAllPages": {
+            "type": "boolean"
+          },
+          "PageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "PageNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "Culture": {
+            "type": "string",
+            "nullable": true
+          },
+          "SortField": {
+            "type": "string",
+            "nullable": true
+          },
+          "SortOrder": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

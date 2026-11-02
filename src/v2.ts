@@ -7,6 +7,7 @@ const params = {
   strictSSL: true,
   schemaOut: "",
   controllerOut: "",
+  imports: new Array<string>(),
   configType: "", // 'axios'
 };
 
@@ -16,13 +17,32 @@ const endpoints = new Array<any>();
 const controllers = {} as Record<string, Record<string, string[]>>;
 
 const nonInterfaceTypes =
-  "boolean|number|number[]|string|string[]|object|void|Record<string, boolean>|Record<string, string>";
+  "any|boolean|number|number[]|string|string[]|object|void|Record<string, boolean>|Record<string, string>";
 const dataTypes = {
   integer: "number",
   string: "string",
   boolean: "boolean",
   array: "[]",
 } as Record<string, string>;
+
+interface ISchema {
+  tag: string;
+  body: string;
+  kind: string;
+}
+const schemas = {} as Record<string, ISchema[]>;
+let responseTypes = new Array<string>();
+// Note: this is a general list of contentTypes.
+// I'm not sure where the version values comes from,
+// but would like to omit and compare against the root type.
+const contentTypes = [
+  "application/json",
+  "application/json; ver=1.0",
+  "application/json; ver=2.0",
+  "application/json; v=1.0",
+  "application/json; v=2.0",
+];
+
 //==== Utilities ======================================================
 
 function generatedMessage() {
@@ -74,6 +94,158 @@ function getType(content?: { schema: any }) {
   }
   return refType;
 }
+
+//==== Schemas ========================================================
+
+/** Build a list of objects that are of type Response */
+function collectResponseTypes() {
+  const paths = Object.keys(swagger.paths);
+  for (const p in paths) {
+    const path = paths[p];
+    const verbs = Object.keys(swagger.paths[path]);
+    for (const v in verbs) {
+      const verb = verbs[v];
+      if (
+        swagger.paths[path][verb].responses &&
+        swagger.paths[path][verb].responses["200"] &&
+        swagger.paths[path][verb].responses["200"].content
+      ) {
+        const contentObj = swagger.paths[path][verb].responses["200"].content;
+        for (let i = 0; i < contentTypes.length; i++) {
+          let content = contentObj[contentTypes[i]];
+          if (content) {
+            const type = getType(content).replace("[]", "");
+            responseTypes.push(type);
+            // Now we search & check the nested objects
+            getNestedType(type);
+            break;
+          }
+        }
+      }
+    }
+  }
+  responseTypes = [...new Set(responseTypes)];
+}
+
+/** Fetch the Reference type for the nested object */
+function getNestedType(type: string) {
+  if (swagger.components.schemas[type]?.properties) {
+    const properties = swagger.components.schemas[type].properties;
+    Object.keys(properties).forEach((prop: string) => {
+      if (properties[prop]["items"]) {
+        if (properties[prop]["items"]["$ref"]) {
+          type = getReferenceType(properties[prop]["items"]["$ref"]);
+          if (!responseTypes.includes(type)) {
+            responseTypes.push(type);
+            if (
+              JSON.stringify(swagger.components.schemas[type]).includes(
+                '"items":{"$ref"',
+              )
+            ) {
+              getNestedType(type);
+            }
+          }
+        }
+        // else {
+        //   // a scalar type
+        //   console.log(properties[prop]["items"]["type"])
+        // }
+      }
+    });
+  }
+}
+
+function buildSchema(name: string) {
+  const isRespType = responseTypes.includes(name);
+  if (!schemas[name]) schemas[name] = [];
+  if (swagger.components.schemas[name].properties) {
+    let sb = `{\n`;
+    const properties = swagger.components.schemas[name].properties;
+    Object.keys(properties).forEach((prop: string) => {
+      sb += `${properties[prop]["format"] ? `  /** @format ${properties[prop]["format"]} */\n` : ""}`;
+      sb += `  ${properties[prop]["readOnly"] ? "readonly " : ""}${prop}${isRespType ? "" : "?"}: `;
+
+      if (properties[prop]["items"]) {
+        if (properties[prop]["items"]["$ref"]) {
+          const itemRef = properties[prop]["items"]["$ref"] as string;
+          const arr = itemRef.split("/");
+          sb += `I${arr[arr.length - 1]}`;
+        } else {
+          sb += `${dataTypes[properties[prop]["items"]["type"]] ?? "any"}`;
+        }
+      }
+
+      if (properties[prop]["type"]) {
+        switch (properties[prop]["type"]) {
+          case "array":
+            sb += "[]";
+            break;
+          case "integer":
+            sb += "number";
+            break;
+          default:
+            sb += properties[prop]["type"];
+            break;
+        }
+      }
+
+      if (properties[prop]["$ref"]) {
+        const ref = properties[prop]["$ref"] as string;
+        const arr = ref.split("/");
+        sb += `I${arr[arr.length - 1]}`;
+      }
+
+      const nullable = properties[prop]["nullable"];
+      if (sb.endsWith(": ") && nullable) sb += "any | null";
+      else if (nullable) sb += " | null";
+
+      sb += ";\n";
+    });
+
+    sb += "}\n\n";
+    schemas[name].push({
+      kind: "interface",
+      tag: swagger.info.version,
+      body: sb,
+    });
+  } else if (swagger.components.schemas[name]["enum"]) {
+    // Convert ENUM to TS Type
+    const enumValues = swagger.components.schemas[name]["enum"] as number[];
+    schemas[name].push({
+      kind: "type",
+      tag: swagger.info.version,
+      body: `= ${enumValues.join(" | ")};\n`,
+    });
+  }
+}
+
+/** Builds out the entire schema-first */
+function generateSchema() {
+  Object.keys(swagger.components.schemas).forEach((name: string) =>
+    buildSchema(name),
+  );
+}
+
+/** Builds the declaration of the schema*/
+function createSchema(): string {
+  let sb = generatedMessage();
+  Object.keys(schemas)
+    //.filter((x) => x === "")
+    .forEach((s) => {
+      const main = schemas[s][0]; // set the initial version for comparison
+      if (main) {
+        // always create main
+        sb += `${main.kind} I${s} ${main.body}`;
+        // compare against the others
+        schemas[s].forEach((x) => {
+          if (x.body !== main.body) sb += `${x.kind} I${s}_${x.tag} ${x.body}`;
+        });
+      }
+    });
+  return sb;
+}
+
+//==== Endpoints/Controller ===========================================
 
 function generateEndpoints() {
   Object.keys(swagger.paths)
@@ -168,7 +340,8 @@ function generateEndpoints() {
               type = getType(pathVerb.requestBody!.content[ct]);
             }
           });
-          payloadParameter = `payload: ${nonInterfaceTypes.includes(type) ? type : "I" + type}`;
+          if (!"get|delete|head|option".includes(verb))
+            payloadParameter = `payload: ${nonInterfaceTypes.includes(type) ? type : "I" + type}`;
         }
 
         // == Fetch the return-type for the path/verb == //
@@ -210,15 +383,15 @@ function generateEndpoints() {
         argumentParameters.push(config);
 
         endpoints.push({
-          controller,
-          action,
+          controller: pathVerb.tags ? pathVerb.tags[0] : controller,
+          action: pathVerb.operationId ?? action,
           verb,
           tag: version, //swagger.info.version,
           arguments: `(${argumentParameters.join(", ")})`,
           parameters: `{ ${queryParameters.map((x) => x.name).join(", ")} }`,
           returnType,
           path: path
-            .replace("v{version}", swagger.info.version)
+            .replace("v{version}", version) //swagger.info.version
             .replaceAll("{", "${"),
           deprecated: pathVerb.deprecated ?? false,
           //isVersioned: path.includes("v{version}"), // NOTE: this is not needed when using 'UrlSegmentApiVersionReader' in DotNet
@@ -251,22 +424,22 @@ function generateEndpoints() {
 
     if ("get|delete|head|option".includes(e.verb)) {
       if (e.parameters === "{  }") {
-        sb += `${method}${e.arguments} => httpClient.${e.verb}<${e.returnType}>(\`${e.path}\`, config),\n`;
+        sb += `${method}${e.arguments} => api.${e.verb}<${e.returnType}>(\`${e.path}\`, config),\n`;
       } else {
         e.arguments = e.arguments
           .replace(", config?: any", "")
           .replace(", config?: AxiosRequestConfig", "");
-        sb += `${method}${e.arguments} => httpClient.${e.verb}<${e.returnType}>(\`${e.path}\`, { params: ${e.parameters} }),\n`;
+        sb += `${method}${e.arguments} => api.${e.verb}<${e.returnType}>(\`${e.path}\`, { params: ${e.parameters} }),\n`;
       }
     }
     if ("post|put|patch".includes(e.verb)) {
       if (e.parameters === "{  }") {
-        sb += `${method}${e.arguments} => httpClient.${e.verb}<${e.returnType}>(\`${e.path}\`, ${e.arguments.includes("payload:") ? "payload" : "null"}, config),\n`;
+        sb += `${method}${e.arguments} => api.${e.verb}<${e.returnType}>(\`${e.path}\`, ${e.arguments.includes("payload:") ? "payload" : "null"}, config),\n`;
       } else {
         e.arguments = e.arguments
           .replace(", config?: any", "")
           .replace(", config?: AxiosRequestConfig", "");
-        sb += `${method}${e.arguments} => httpClient.${e.verb}<${e.returnType}>(\`${e.path}\`, null, { params: ${e.parameters} }),\n`;
+        sb += `${method}${e.arguments} => api.${e.verb}<${e.returnType}>(\`${e.path}\`, null, { params: ${e.parameters} }),\n`;
       }
     }
 
@@ -282,7 +455,10 @@ function createController(): string {
   if (params.configType === "axios")
     sb += "import type { AxiosRequestConfig } from 'axios';\n";
 
-  sb += "import httpClient from './httpClient';\n";
+  params.imports.forEach((i) => {
+    sb += `${i}\n`;
+  });
+
   sb += "\n// prettier-ignore\nexport default {\n";
   Object.keys(controllers).forEach((c) => {
     let controller = controllers[c];
@@ -358,12 +534,12 @@ export const generate = async (opt?: {
         console.error("Unknown error. Check the swagger.json.");
         return;
       }
-      // collectResponseTypes();
-      // generateSchema();
+      collectResponseTypes();
+      generateSchema();
       generateEndpoints();
     }
 
-    // print(createSchema(), params.schemaOut);
+    print(createSchema(), params.schemaOut);
     print(createController(), params.controllerOut);
   }
 };
